@@ -1,5 +1,4 @@
 import os
-import socket
 from pathlib import Path
 
 from fastapi import FastAPI, Response
@@ -89,14 +88,7 @@ if __name__ == "__main__":
     import uvicorn
 
     host = "127.0.0.1"
-    start_port = int(os.getenv("PORT", "8000"))
-    port = start_port
-
-    while port < start_port + 20:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            if sock.connect_ex((host, port)) != 0:
-                break
-        port += 1
+    port = int(os.getenv("PORT", "8000"))
 
     print(f"Starting server at http://{host}:{port}")
     uvicorn.run(app, host=host, port=port)
