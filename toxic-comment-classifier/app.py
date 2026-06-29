@@ -1,11 +1,22 @@
-from fastapi import FastAPI
+import os
+import socket
+from pathlib import Path
+
+from fastapi import FastAPI, Response
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import joblib
 
-# Load Saved Model and Vectorizer
+BASE_DIR = Path(__file__).resolve().parent
+FRONTEND_DIR = BASE_DIR.parent / "frontend"
+MODEL_PATH = BASE_DIR / "tox_model.pkl"
+TFIDF_PATH = BASE_DIR / "tfidf.pkl"
+FAVICON_PATH = FRONTEND_DIR / "favicon.ico"
 
-model = joblib.load("tox_model.pkl")
-tfidf = joblib.load("tfidf.pkl")
+# Load saved model and vectorizer relative to this file so the app works from any cwd.
+model = joblib.load(MODEL_PATH)
+tfidf = joblib.load(TFIDF_PATH)
 
 # Create FastAPI App
 
@@ -14,6 +25,8 @@ app = FastAPI(
     description="Multi-label NLP Classification API",
     version="1.0"
 )
+
+app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
 # Labels
 
@@ -34,9 +47,13 @@ class Comment(BaseModel):
 
 @app.get("/")
 def home():
-    return {
-        "message": "Toxic Comment Classification API Running"
-    }
+    return FileResponse(FRONTEND_DIR / "index.html")
+
+@app.get("/favicon.ico")
+def favicon():
+    if FAVICON_PATH.exists():
+        return FileResponse(FAVICON_PATH)
+    return Response(status_code=204)
 
 # Prediction Route
 
@@ -66,3 +83,20 @@ def predict(comment: Comment):
         "comment": comment.text,
         "results": result
     }
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    host = "127.0.0.1"
+    start_port = int(os.getenv("PORT", "8000"))
+    port = start_port
+
+    while port < start_port + 20:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            if sock.connect_ex((host, port)) != 0:
+                break
+        port += 1
+
+    print(f"Starting server at http://{host}:{port}")
+    uvicorn.run(app, host=host, port=port)

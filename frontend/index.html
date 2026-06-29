@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Toxic Comment Classifier</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div class="hero-content">
+          <span class="eyebrow">AI Text Safety</span>
+          <h1>Toxic Comment Classifier</h1>
+          <p>
+            Paste a comment below to detect toxicity, insults, hate speech, threats,
+            and more. See predictions with confidence scores instantly.
+          </p>
+        </div>
+      </header>
+
+      <main class="app-card">
+        <section class="input-panel">
+          <label for="comment-input">Enter a comment</label>
+          <textarea id="comment-input" placeholder="Type your comment here..."></textarea>
+          <button id="predict-button">Analyze Comment</button>
+          <div id="status" class="status-message"></div>
+        </section>
+
+        <section class="results-panel hidden" id="results-panel">
+          <div class="results-header">
+            <h2>Prediction Results</h2>
+            <p id="results-comment"></p>
+          </div>
+          <div class="results-grid" id="results-grid"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/static/script.js"></script>
+  </body>
+</html>
